@@ -21,3 +21,11 @@ def initdb():
     import models.book
     import models.user
     Base.metadata.create_all(engine)
+
+
+def get_db():
+    db = Session()
+    try:
+        yield db
+    finally:
+        db.close()

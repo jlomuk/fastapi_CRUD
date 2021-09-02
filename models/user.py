@@ -2,6 +2,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import relationship
 
 from core.database import Base
+from models.book import Book
 
 
 class User(Base):
@@ -12,4 +13,7 @@ class User(Base):
     email = sa.Column(sa.String, unique=True, index=True)
     password = sa.Column(sa.String)
     is_active = sa.Column(sa.Boolean, default=True)
-    books = relationship('Book', back_populates="owner")
+    books = relationship(Book, back_populates="owner")
+
+    def __repr__(self) -> str:
+        return f'{self.id}: {self.email}'
