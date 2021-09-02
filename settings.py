@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic import BaseSettings, PostgresDsn
 
 
 class Settings(BaseSettings):
@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     db_password: str
     db_host: str = '127.0.0.1'
     db_port: int = 5432
+    db_url: str = 'postgresql://{0}:{1}@{2}:{3}/{4}'
 
 
 settings = Settings(
