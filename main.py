@@ -1,13 +1,10 @@
 import uvicorn
+from endpoints import router
 from fastapi import FastAPI
 from settings import settings
 
 app = FastAPI()
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello Worl"}
+app.include_router(router)
 
 
 if __name__ == '__main__':
