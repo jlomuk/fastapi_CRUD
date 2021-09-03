@@ -1,9 +1,11 @@
 from typing import List, Optional
 
 from fastapi import Depends
+from fastapi import Response
 from fastapi.routing import APIRouter
+from starlette import status
 
-from schemas.user_schemas import User, UserCreate
+from schemas.user_schemas import User, UserCreate, UserUpdate
 from services.user_services import UserService
 
 router = APIRouter(
@@ -25,3 +27,18 @@ def get_user(user_id: int, user_service: UserService = Depends()):
 @router.post('/createuser', response_model=User)
 def create_user(user: UserCreate, user_service: UserService = Depends()):
     return user_service.create_user(user)
+
+
+@router.put('/{user_id}/update', response_model=User)
+def update_user(
+        user_id: int,
+        update_data: UserUpdate,
+        user_service: UserService = Depends()
+):
+    return user_service.update_user(user_id, update_data)
+
+
+@router.delete('/{user_id}/delete')
+def delete_user(user_id: int, user_service: UserService = Depends()):
+    user_service.delete_user(user_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
