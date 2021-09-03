@@ -10,20 +10,20 @@ engine = create_engine(settings.db_url.format(
     settings.db_host,
     settings.db_port,
     settings.db_name
-), pool_pre_ping=True, echo=True)
+), pool_pre_ping=True)
 
-Session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+Session: sessionmaker = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 Base = declarative_base()
 
 
-def initdb():
+def initdb()-> None:
     import models.book
     import models.user
     Base.metadata.create_all(engine)
 
 
-def get_db():
+def get_db() -> Session:
     db = Session()
     try:
         yield db

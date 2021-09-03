@@ -1,5 +1,4 @@
 from typing import Optional, List
-
 from pydantic import BaseModel
 
 from schemas.book_schemas import Book
@@ -8,12 +7,15 @@ from schemas.book_schemas import Book
 class UserBase(BaseModel):
     email: str
     name: Optional[str] = None
+    is_active: Optional[bool]
 
 
 class User(UserBase):
     id: int
-    is_active: bool
     books: List[Book]
+
+    class Config:
+        orm_mode = True
 
 
 class UserCreate(UserBase):

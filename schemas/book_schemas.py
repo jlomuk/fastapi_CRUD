@@ -16,6 +16,9 @@ class BookBase(BaseModel):
 class Book(BookBase):
     id: int
 
+    class Config:
+        orm_mode = True
+
 
 class BookCreate(BookBase):
     pass
