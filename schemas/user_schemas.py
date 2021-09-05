@@ -1,8 +1,10 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, constr
+
+from schemas.validators import EmailStrToLower
 
 
 class UserBase(BaseModel):
-    email: EmailStr
+    email: EmailStrToLower
     name: str
     is_active: bool = False
 
@@ -19,4 +21,4 @@ class UserUpdate(UserBase):
 
 
 class UserCreate(UserUpdate):
-    password: str
+    password: constr(min_length=8)

@@ -40,8 +40,12 @@ class UserService(PasswordHashMixin):
         return self._get_users_query().filter(User.name == name).first()
 
     def create_user(self, user: UserCreate) -> User:
-        db_user = User(**user.dict())
-        db_user.password = self.get_hashed_password(user.password)
+        db_user = User(
+            name=user.name,
+            email=user.email,
+            password=self.get_hashed_password(user.password),
+            is_active=user.is_active,
+        )
         self.db.add(db_user)
         self.db.commit()
         return db_user
