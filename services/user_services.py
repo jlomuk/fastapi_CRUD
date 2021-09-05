@@ -1,8 +1,8 @@
 from typing import List
 
 from fastapi import Depends, HTTPException
-from starlette import status
 from sqlalchemy.orm import Session, Query
+from starlette import status
 
 from core.database import get_db
 from models.user import User
@@ -27,11 +27,17 @@ class UserService(PasswordHashMixin):
         list_users = query.all()
         return list_users
 
-    def get_user(self, user_id: int) -> User:
+    def get_user_by_id(self, user_id: int) -> User:
         user = self._get_users_query().filter(User.id == user_id).first()
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User does not exists')
         return user
+
+    def get_user_by_email(self, email: str) -> User:
+        return self._get_users_query().filter(User.email == email).first()
+
+    def get_user_by_name(self, name: str) -> User:
+        return self._get_users_query().filter(User.name == name).first()
 
     def create_user(self, user: UserCreate) -> User:
         db_user = User(**user.dict())
@@ -41,7 +47,7 @@ class UserService(PasswordHashMixin):
         return db_user
 
     def update_user(self, user_id: int, update_data: UserUpdate) -> User:
-        db_user = self.get_user(user_id)
+        db_user = self.get_user_by_id(user_id)
         for key, value in update_data.dict().items():
             setattr(db_user, key, value)
         self.db.commit()
@@ -49,6 +55,6 @@ class UserService(PasswordHashMixin):
         return db_user
 
     def delete_user(self, user_id: int) -> None:
-        db_user = self.get_user(user_id=user_id)
+        db_user = self.get_user_by_id(user_id=user_id)
         self.db.delete(db_user)
         self.db.commit()

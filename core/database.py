@@ -17,7 +17,7 @@ Session: sessionmaker = sessionmaker(bind=engine, autoflush=False, autocommit=Fa
 Base = declarative_base()
 
 
-def initdb()-> None:
+def init_db() -> None:
     import models.book
     import models.user
     Base.metadata.create_all(engine)

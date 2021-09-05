@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi import Response
 from fastapi.routing import APIRouter
 from starlette import status
@@ -21,11 +21,15 @@ def get_list_users(active: Optional[bool] = None, user_service: UserService = De
 
 @router.get('/{user_id}', response_model=User)
 def get_user(user_id: int, user_service: UserService = Depends()):
-    return user_service.get_user(user_id)
+    return user_service.get_user_by_id(user_id)
 
 
-@router.post('/createuser', response_model=User)
+@router.post('/create', response_model=User)
 def create_user(user: UserCreate, user_service: UserService = Depends()):
+    if user_service.get_user_by_email(user.email):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user exists with this email')
+    if user_service.get_user_by_name(user.name):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user exists with this nickname')
     return user_service.create_user(user)
 
 
@@ -35,10 +39,16 @@ def update_user(
         update_data: UserUpdate,
         user_service: UserService = Depends()
 ):
+    user_by_email = user_service.get_user_by_email(update_data.email)
+    if user_by_email and user_by_email.id != user_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user exists with this email')
+    user_by_name = user_service.get_user_by_name(update_data.name)
+    if user_by_name and user_by_name.id != user_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='user exists with this nickname')
     return user_service.update_user(user_id, update_data)
 
 
-@router.delete('/{user_id}/delete')
+@router.delete('/{user_id}/delete', status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_id: int, user_service: UserService = Depends()):
     user_service.delete_user(user_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
