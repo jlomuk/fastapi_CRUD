@@ -6,7 +6,7 @@ from schemas.validators import EmailStrToLower
 class UserBase(BaseModel):
     email: EmailStrToLower
     name: str
-    is_active: bool = False
+    is_active: bool = True
 
 
 class User(UserBase):
@@ -22,3 +22,8 @@ class UserUpdate(UserBase):
 
 class UserCreate(UserUpdate):
     password: constr(min_length=8)
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = 'bearer'

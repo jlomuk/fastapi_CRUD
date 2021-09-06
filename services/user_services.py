@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session, Query
@@ -6,11 +6,11 @@ from starlette import status
 
 from core.database import get_db
 from models.user import User
-from schemas.user_schemas import UserCreate, UserUpdate
-from services.mixins import PasswordHashMixin
+from schemas.user_schemas import UserCreate, UserUpdate, Token
+from services.auth_mixin import AuthMixin
 
 
-class UserService(PasswordHashMixin):
+class UserService(AuthMixin):
     """Класс содержит CRUD логику для User модели"""
 
     def __init__(self, session: Session = Depends(get_db)) -> None:
@@ -62,3 +62,12 @@ class UserService(PasswordHashMixin):
         db_user = self.get_user_by_id(user_id=user_id)
         self.db.delete(db_user)
         self.db.commit()
+
+    def login(self, username: str, password: str) -> Token:
+        db_user = self.get_user_by_name(username)
+        if db_user and self.check_password(password, db_user.password):
+            return self.create_token_jwt(db_user)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="incorrect username or password"
+        )
