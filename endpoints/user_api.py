@@ -7,6 +7,7 @@ from starlette import status
 
 from schemas.user_schemas import User, UserCreate, UserUpdate
 from services.user_services import UserService
+from services.auth_mixin import check_and_return_user_to_token
 
 router = APIRouter(
     prefix='/users',
@@ -15,12 +16,19 @@ router = APIRouter(
 
 
 @router.get('/', response_model=List[User])
-def get_list_users(active: Optional[bool] = None, user_service: UserService = Depends()):
+def get_list_users(
+        active: Optional[bool] = None,
+        user_service: UserService = Depends(),
+        correct_user: User = Depends(check_and_return_user_to_token)
+):
     return user_service.get_users_list(active)
 
 
 @router.get('/{user_id}', response_model=User)
-def get_user(user_id: int, user_service: UserService = Depends()):
+def get_user(
+        user_id: int,
+        user_service: UserService = Depends(),
+):
     return user_service.get_user_by_id(user_id)
 
 
@@ -37,7 +45,7 @@ def create_user(user: UserCreate, user_service: UserService = Depends()):
 def update_user(
         user_id: int,
         update_data: UserUpdate,
-        user_service: UserService = Depends()
+        user_service: UserService = Depends(),
 ):
     user_by_email = user_service.get_user_by_email(update_data.email)
     if user_by_email and user_by_email.id != user_id:
@@ -49,6 +57,9 @@ def update_user(
 
 
 @router.delete('/{user_id}/delete', status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, user_service: UserService = Depends()):
+def delete_user(
+        user_id: int,
+        user_service: UserService = Depends(),
+):
     user_service.delete_user(user_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
