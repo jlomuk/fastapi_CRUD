@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str = 'HS256'
     access_token_expire_minutes: int = 10
-
+    test_db_name: str
 
 settings = Settings(
     _env_file='.env',
